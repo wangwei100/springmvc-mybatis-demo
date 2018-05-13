@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.demohot.demos.module.demo.dao.DemoDao">
+
+
+	<!--
+		插入demo记录
+		useGeneratedKeys="true"  表示使用数据库主键自增
+		keyColumn="demo_id"      表示数据库自增的主键的名称，可不填
+		keyProperty="demo_id"    表示自增字段对应java对象的属性
+	-->
+	<insert id="insert" useGeneratedKeys="true" keyColumn="demo_id" keyProperty="demo_id">
+		INSERT INTO demo
+		(title, content, demo_type)
+		values
+		(#{title}, #{content}, #{demo_type})
+	</insert>
+
+	<delete id="delete">
+		DELETE FROM demo
+		WHERE demo_id = #{id}
+	</delete>
+
+	<update id="update">
+		UPDATE demo
+		SET
+		title = #{title},
+		content = #{content},
+		demo_type = #{demo_type}
+		WHERE demo_id = #{demo_id}
+	</update>
+
+	<select id="get" resultType="Demo">
+		SELECT * FROM demo
+		WHERE
+		demo_id = #{id}
+		<include refid="limit.single" />
+	</select>
+
+	<select id="select" resultType="Demo">
+		SELECT * FROM demo
+		<include refid="limit.page" />
+	</select>
+
+	<select id="count" resultType="Long">
+		SELECT COUNT(1) FROM demo
+	</select>
+
+</mapper>

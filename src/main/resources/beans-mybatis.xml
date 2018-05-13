@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd
+        ">
+
+
+	<context:property-placeholder location="classpath:jdbc.properties" />
+
+
+	<!-- datasource -->
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
+		destroy-method="close">
+		<property name="driverClass" value="${jdbc.driverClassName}" />
+		<property name="jdbcUrl" value="${jdbc.url}" />
+		<property name="user" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+
+		<property name="initialPoolSize" value="${jdbc.initialPoolSize}" />
+		<property name="minPoolSize" value="${jdbc.minPoolSize}" />
+		<property name="maxPoolSize" value="${jdbc.maxPoolSize}" />
+		<property name="maxIdleTime" value="25000" /><!-- 小于mysqld默认时间28800s=8小时 -->
+		<property name="checkoutTimeout" value="0" /><!-- 连接用完时，等待获取新连接的时间0ms -->
+		<property name="acquireIncrement" value="2" /><!-- 连接数不够时，每次获取n个连接 -->
+		<property name="acquireRetryAttempts" value="30" /><!-- 默认1000ms尝试获取一次新连接，获取新连接失败时尝试次数 -->
+		<property name="idleConnectionTestPeriod" value="60" /><!-- 60s检查一次idle连接是否有效 -->
+	</bean>
+
+
+	<!-- 事务配置，基于注解 -->
+	<tx:annotation-driven transaction-manager="txManager" />
+	<bean id="txManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+
+	<!-- mybatis -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="mapperLocations" value="classpath:mybatis-mapper/**/*.xml" />
+		<property name="typeAliasesPackage"
+			value="
+			com.demohot.demos.module.user.po,
+			com.demohot.demos.module.demo.po
+		" />
+		<property name="typeHandlersPackage"
+			value="
+			com.demohot.demos.module.user.po.enums.handler,
+			com.demohot.demos.module.demo.po.enums.handler
+		" />
+	</bean>
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage"
+			value="
+			com.demohot.demos.module.user.dao,
+			com.demohot.demos.module.demo.dao
+		" />
+	</bean>
+</beans>
